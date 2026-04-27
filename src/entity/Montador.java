@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Montador {
 
@@ -31,6 +33,32 @@ public class Montador {
         }
 
         return linhas;
-
     }
+
+    public static Map<String, Integer> identificarLabels(List<String> linhas){
+        Map<String, Integer> tabela = new HashMap<>();
+        int contadorInstrucoes = 0;
+
+        for(int i = 0; i < linhas.size(); i++){
+            String linha = linhas.get(i);
+
+            if(linha.contains(":")){
+                String[] partes = linha.split(":");
+                tabela.put(partes[0].trim(), contadorInstrucoes);
+
+                if(partes.length > 1 && !partes[1].trim().isEmpty()){
+                    contadorInstrucoes++;
+                }else{
+                    linhas.set(i, "");
+                }
+
+            }else{
+                contadorInstrucoes++;
+            }
+        }
+
+        linhas.removeIf(String::isEmpty);
+        return tabela;
+    }
+
 }
