@@ -17,7 +17,12 @@ public class Montador {
             while ((linha = br.readLine()) != null ){
                 linha = linha.trim();
 
-                if(!linha.isEmpty()){
+                int indiceComentario = linha.indexOf("#");
+                if(indiceComentario != -1){
+                    linha = linha.substring(0, indiceComentario).trim();
+                }
+
+                if(!linha.isEmpty() && !linha.startsWith(".")){
                     linhas.add(linha);
                 }
             }
@@ -25,26 +30,7 @@ public class Montador {
             System.out.println("Erro ao ler arquivo: " + e.getMessage());
         }
 
-        linhas = removerComentarios(linhas);
         return linhas;
 
     }
-
-    public static List<String> removerComentarios(List<String> linhas){
-        List<String> linhasLimpas = new ArrayList<>();
-
-        for(String l: linhas){
-            int indiceComentario = l.indexOf("#");
-
-            if(indiceComentario != -1){
-                l = l.substring(0, indiceComentario).trim();
-            }
-
-            if(!l.isEmpty()){
-                linhasLimpas.add(l);
-            }
-        }
-        return linhasLimpas;
-    }
-
 }
