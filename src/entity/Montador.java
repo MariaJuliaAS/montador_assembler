@@ -3,12 +3,22 @@ package entity;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Montador {
+
+    static Set<String> tipoR = new HashSet<>(Arrays.asList(
+            "sll", "srl", "jr", "mfhi", "mflo", "mult", "multu", "div", "divu",
+            "add", "addu", "sub", "subu", "and", "or", "slt", "sltu", "mul"
+    ));
+
+    static Set<String> tipoI = new HashSet<>(Arrays.asList(
+            "beq", "bne", "addi", "addiu", "slti", "sltiu", "andi", "ori", "lui", "lw", "sw"
+    ));
+
+    static Set<String> tipoJ = new HashSet<>(Arrays.asList(
+            "j", "jal"
+    ));
 
     public static List<String> lerArquivo(String caminho){
         List<String> linhas = new ArrayList<>();
@@ -122,6 +132,16 @@ public class Montador {
 
         System.out.println("Registrador inválido: " + reg);
         return -1;
+    }
+
+    public static String identificarTipo(String instrucao){
+        String op = instrucao.split("\\s+")[0];
+
+        if(tipoR.contains(op)) return "R";
+        if(tipoI.contains(op)) return "I";
+        if(tipoJ.contains(op)) return "J";
+
+        return "Desconhecido";
     }
 
 }

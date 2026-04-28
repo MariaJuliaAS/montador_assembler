@@ -9,14 +9,28 @@ public class Main {
 
         String caminho = "C:\\Dev\\UFERSA\\3 Semestre\\Arq. e Org. de Comp\\testeMontador.asm";
 
-        // ETAPA 1 + 2 (já estão juntas no seu código)
+        // 1. ler arquivo
         List<String> linhas = Montador.lerArquivo(caminho);
-        
-        // Verificar se houve erro na leitura do arquivo
-        if (linhas == null) {
-            System.err.println("Falha crítica: não foi possível ler o arquivo. Encerrando programa.");
-            System.exit(1);
-        }
 
+        // 2. labels
+        Map<String, Integer> tabelaLabels = Montador.identificarLabels(linhas);
+
+        // 3. registradores
+        Map<String, Integer> tabelaRegs = Montador.criarMapaRegistradores();
+
+        System.out.println("=== TRADUÇÃO ===");
+
+        // 4. percorrer instruções
+        for (int i = 0; i < linhas.size(); i++) {
+
+            String linha = linhas.get(i);
+
+            String tipo = Montador.identificarTipo(linha);
+
+            System.out.println("\nInstrucao: " + linha);
+            System.out.println("Tipo: " + tipo);
+
+            // 👉 aqui entra a tradução
+        }
     }
 }
