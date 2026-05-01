@@ -8,48 +8,30 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // 🔹 caminho do arquivo ASM
-        String caminho = "C:\\Dev\\UFERSA\\3 Semestre\\Arq. e Org. de Comp\\testeMontador.asm"; // coloca seu arquivo aqui
+        Scanner sc = new Scanner(System.in);
 
-        // 🔹 ler arquivo
+        System.out.print("Digite o caminho do arquivo .asm: ");
+        String caminho = sc.nextLine();
+
+        System.out.print("Digite o tipo (-b para binário | -h para hex): ");
+        String tipo = sc.nextLine();
+
         List<String> linhas = Montador.lerArquivo(caminho);
+        if (linhas == null) return;
 
-        if (linhas == null) {
-            System.out.println("Erro ao ler arquivo.");
-            return;
-        }
-
-        // 🔹 identificar labels
         Map<String, Integer> labels = Montador.identificarLabels(linhas);
+        Map<String, Integer> reg = Montador.criarMapaRegistradores();
+        Map<String, Integer> opcode = Montador.cirarMapaOpcode();
+        Map<String, Integer> funct = Montador.criarMapaFunct();
 
-        // 🔹 mapas necessários
-        Map<String, Integer> registradores = Montador.criarMapaRegistradores();
-        Map<String, Integer> opcodeMap = Montador.cirarMapaOpcode();
-        Map<String, Integer> functMap = Montador.criarMapaFunct();
+        List<String> binarios = new ArrayList<>();
 
-        System.out.println("===== LABELS =====");
-        for (String label : labels.keySet()) {
-            System.out.println(label + " -> " + labels.get(label));
-        }
-
-        System.out.println("\n===== BINÁRIO =====");
-
-        // 🔹 traduzir instruções
         for (int i = 0; i < linhas.size(); i++) {
-            String linha = linhas.get(i);
-
-            String binario = Montador.traduzirInstrucao(
-                    linha,
-                    registradores,
-                    labels,
-                    opcodeMap,
-                    functMap,
-                    i
-            );
-
-            System.out.println(linha);
-            System.out.println(binario);
-            System.out.println();
+            binarios.add(Montador.traduzirInstrucao(
+                    linhas.get(i), reg, labels, opcode, funct, i
+            ));
         }
+
+        Montador.gerarArquivo(binarios, caminho, tipo);
     }
 }

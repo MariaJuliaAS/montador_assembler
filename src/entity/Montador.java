@@ -1,8 +1,6 @@
 package entity;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class Montador {
@@ -269,5 +267,36 @@ public class Montador {
 
     }
 
+    public static void gerarArquivo(List<String> binarios, String nomeSaida, String tipo){
+        String base = nomeSaida.substring(0, nomeSaida.lastIndexOf("."));
+        nomeSaida = tipo.equals("-b") ? base + ".bin" : base + ".hex";
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(nomeSaida))){
+            if(!tipo.equals("-b") && !tipo.equals("-h")){
+                System.out.println("Pârametro inválidp. Use -b ou -h");
+                return;
+            }
+
+            if(tipo.equals("-h")){
+                bw.write("v2.0 raw");
+                bw.newLine();
+            }
+
+            for(String linhaBin: binarios){
+                if(tipo.equals("-b")){
+                    bw.write(linhaBin);
+                }else{
+                    String hex = String.format("%08x", Integer.parseUnsignedInt(linhaBin, 2));
+                    bw.write(hex);
+                }
+
+                bw.newLine();
+            }
+
+            System.out.println("Arquivo gerado: " + nomeSaida);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
 
 }
