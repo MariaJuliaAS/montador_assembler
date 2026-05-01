@@ -144,4 +144,130 @@ public class Montador {
         return "Desconhecido";
     }
 
+    public static Map<String, Integer> cirarMapaOpcode(){
+        Map<String, Integer> op = new HashMap<>();
+
+        op.put("beq", 4);
+        op.put("bne", 5);
+        op.put("addi", 8);
+        op.put("addiu", 9);
+        op.put("slti", 10);
+        op.put("sltiu", 11);
+        op.put("andi", 12);
+        op.put("ori", 13);
+        op.put("lui", 15);
+        op.put("lw", 35);
+        op.put("sw", 43);
+
+        op.put("j", 2);
+        op.put("jal", 3);
+
+        return op;
+    }
+
+    public static Map<String, Integer> criarMapaFunct() {
+        Map<String, Integer> funct = new HashMap<>();
+
+        funct.put("sll", 0);
+        funct.put("srl", 2);
+        funct.put("jr", 8);
+        funct.put("mfhi", 16);
+        funct.put("mflo", 18);
+        funct.put("mult", 24);
+        funct.put("multu", 25);
+        funct.put("div", 26);
+        funct.put("divu", 27);
+        funct.put("add", 32);
+        funct.put("addu", 33);
+        funct.put("sub", 34);
+        funct.put("subu", 35);
+        funct.put("and", 36);
+        funct.put("or", 37);
+        funct.put("slt", 42);
+        funct.put("sltu", 43);
+
+        funct.put("mul", 2);
+
+        return funct;
+    }
+
+    public static String paraBinario(int valor, int bits){
+        String bin = Integer.toBinaryString(valor);
+
+        if(bin.length() > bits){
+            bin = bin.substring(bin.length() - bits);
+        }
+
+        while (bin.length() < bits){
+            bin = "0" + bin;
+        }
+
+        return bin;
+    }
+
+    public static String traduzirInstrucao(String linha,
+                                           Map<String, Integer> reg,
+                                           Map<String, Integer> labels,
+                                           Map<String, Integer> opcodeMap,
+                                           Map<String, Integer> functMap,
+                                           int linhaAtual){
+
+        String[] partes = linha.replace(",", "").split("\\s+");
+        String op = partes[0];
+
+        String tipo = identificarTipo(linha);
+
+        int opcode;
+        if(tipo.equals("R")){
+            opcode = op.equals("mul") ?28 : 0;
+        }else{
+            opcode = opcodeMap.get(op);
+        }
+
+        if(tipo.equals("R")){
+            int rd = getNumeroRegstrador(partes[1], reg);
+            int rs =  getNumeroRegstrador(partes[2], reg);
+            int rt = getNumeroRegstrador(partes[3], reg);
+
+            int shamt = 0;
+            int funct = functMap.get(op);
+
+            return paraBinario(opcode, 6) +
+                    paraBinario(rs, 5) +
+                    paraBinario(rt, 5) +
+                    paraBinario(rd, 5) +
+                    paraBinario(shamt, 5) +
+                    paraBinario(funct, 6);
+        }
+
+        if(tipo.equals("I")){
+            int rs = getNumeroRegstrador(partes[2], reg);
+            int rt = getNumeroRegstrador(partes[1], reg);
+            int imediato;
+
+            if(op.equals("beq") || op.equals("bne")){
+                int linhaLabel = labels.get(partes[3]);
+                imediato = linhaLabel - (linhaAtual + 1);
+            }else{
+                imediato = Integer.parseInt(partes[3]);
+            }
+
+            return paraBinario(opcode, 6) +
+                    paraBinario(rs, 5) +
+                    paraBinario(rt, 5) +
+                    paraBinario(imediato, 16);
+        }
+
+        if(tipo.equals("J")){
+            int endereco = labels.get(partes[1]);
+
+            return paraBinario(opcode, 6) +
+                    paraBinario(endereco, 26);
+        }
+
+        return "";
+
+    }
+
+
 }

@@ -1,36 +1,55 @@
+
+
 import entity.Montador;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        String caminho = "C:\\Dev\\UFERSA\\3 Semestre\\Arq. e Org. de Comp\\testeMontador.asm";
+        // 🔹 caminho do arquivo ASM
+        String caminho = "C:\\Dev\\UFERSA\\3 Semestre\\Arq. e Org. de Comp\\testeMontador.asm"; // coloca seu arquivo aqui
 
-        // 1. ler arquivo
+        // 🔹 ler arquivo
         List<String> linhas = Montador.lerArquivo(caminho);
 
-        // 2. labels
-        Map<String, Integer> tabelaLabels = Montador.identificarLabels(linhas);
+        if (linhas == null) {
+            System.out.println("Erro ao ler arquivo.");
+            return;
+        }
 
-        // 3. registradores
-        Map<String, Integer> tabelaRegs = Montador.criarMapaRegistradores();
+        // 🔹 identificar labels
+        Map<String, Integer> labels = Montador.identificarLabels(linhas);
 
-        System.out.println("=== TRADUÇÃO ===");
+        // 🔹 mapas necessários
+        Map<String, Integer> registradores = Montador.criarMapaRegistradores();
+        Map<String, Integer> opcodeMap = Montador.cirarMapaOpcode();
+        Map<String, Integer> functMap = Montador.criarMapaFunct();
 
-        // 4. percorrer instruções
+        System.out.println("===== LABELS =====");
+        for (String label : labels.keySet()) {
+            System.out.println(label + " -> " + labels.get(label));
+        }
+
+        System.out.println("\n===== BINÁRIO =====");
+
+        // 🔹 traduzir instruções
         for (int i = 0; i < linhas.size(); i++) {
-
             String linha = linhas.get(i);
 
-            String tipo = Montador.identificarTipo(linha);
+            String binario = Montador.traduzirInstrucao(
+                    linha,
+                    registradores,
+                    labels,
+                    opcodeMap,
+                    functMap,
+                    i
+            );
 
-            System.out.println("\nInstrucao: " + linha);
-            System.out.println("Tipo: " + tipo);
-
-            // 👉 aqui entra a tradução
+            System.out.println(linha);
+            System.out.println(binario);
+            System.out.println();
         }
     }
 }
