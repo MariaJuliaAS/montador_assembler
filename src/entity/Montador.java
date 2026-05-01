@@ -286,7 +286,7 @@ public class Montador {
                 if(tipo.equals("-b")){
                     bw.write(linhaBin);
                 }else{
-                    String hex = String.format("%08x", Integer.parseUnsignedInt(linhaBin, 2));
+                    String hex = paraHexadecimal(linhaBin);
                     bw.write(hex);
                 }
 
@@ -297,6 +297,27 @@ public class Montador {
         }catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+    public static String paraHexadecimal(String binario){
+        int decimal = Integer.parseUnsignedInt(binario, 2);
+        return String.format("%08x", decimal);
+    }
+
+    public static Map<String, Integer> contarInstrucoes(List<String> linhas){
+        Map<String, Integer> contagem = new HashMap<>();
+
+        for(String linha: linhas){
+            String op = linha.split("\\s+")[0];
+
+            contagem.put(op, contagem.getOrDefault(op, 0) + 1);
+        }
+
+        for (String instrucao: contagem.keySet()){
+            System.out.println(instrucao + ": " + contagem.get(instrucao));
+        }
+
+        return contagem;
     }
 
 }

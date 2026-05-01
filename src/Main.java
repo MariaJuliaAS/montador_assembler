@@ -33,5 +33,6 @@ public class Main {
         }
 
         Montador.gerarArquivo(binarios, caminho, tipo);
+        Montador.contarInstrucoes(linhas);
     }
 }
