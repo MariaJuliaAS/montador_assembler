@@ -1,5 +1,3 @@
-
-
 import entity.Montador;
 
 import java.util.*;
@@ -10,11 +8,23 @@ public class Main {
 
         Scanner sc = new Scanner(System.in);
 
-        System.out.print("Digite o caminho do arquivo .asm: ");
-        String caminho = sc.nextLine();
+        System.out.print("Digite: nomeDoArquivo.asm -b ou -h → ");
+        String entrada = sc.nextLine();
 
-        System.out.print("Digite o tipo (-b para binário | -h para hex): ");
-        String tipo = sc.nextLine();
+        String[] partes = entrada.split("\\s+");
+
+        if (partes.length < 2) {
+            System.out.println("Entrada inválida!");
+            return;
+        }
+
+        String caminho = partes[0];
+        String tipo = partes[1];
+
+        if (!tipo.equals("-b") && !tipo.equals("-h")) {
+            System.out.println("Parâmetro inválido!");
+            return;
+        }
 
         List<String> linhas = Montador.lerArquivo(caminho);
         if (linhas == null) return;
@@ -25,14 +35,32 @@ public class Main {
         Map<String, Integer> funct = Montador.criarMapaFunct();
 
         List<String> binarios = new ArrayList<>();
+        Map<String, Integer> contagem = new HashMap<>();
 
         for (int i = 0; i < linhas.size(); i++) {
-            binarios.add(Montador.traduzirInstrucao(
-                    linhas.get(i), reg, labels, opcode, funct, i
-            ));
+
+            String linha = linhas.get(i);
+            String op = linha.split("\\s+")[0];
+
+            contagem.put(op, contagem.getOrDefault(op, 0) + 1);
+
+            String bin = Montador.traduzirInstrucao(
+                    linha, reg, labels, opcode, funct, i
+            );
+
+            binarios.add(bin);
         }
 
         Montador.gerarArquivo(binarios, caminho, tipo);
-        Montador.contarInstrucoes(linhas);
+
+        System.out.println("\nQuantidades por tipo de instruções:");
+        for(String inst : contagem.keySet()){
+            System.out.println(inst + ": " + contagem.get(inst));
+        }
+
+        Map<String, Integer> ciclos = Montador.lerCSV();
+        Montador.calcularCPI(contagem, ciclos);
+
+        sc.close();
     }
 }

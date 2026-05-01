@@ -239,14 +239,32 @@ public class Montador {
         }
 
         if(tipo.equals("I")){
-            int rs = getNumeroRegstrador(partes[2], reg);
-            int rt = getNumeroRegstrador(partes[1], reg);
-            int imediato;
 
-            if(op.equals("beq") || op.equals("bne")){
+            int rs, rt, imediato;
+
+            if(op.equals("lw") || op.equals("sw")){
+                String offsetBase = partes[2];
+
+                String offset = offsetBase.substring(0, offsetBase.indexOf("("));
+                String base = offsetBase.substring(
+                        offsetBase.indexOf("(") + 1,
+                        offsetBase.indexOf(")")
+                );
+
+                imediato = Integer.parseInt(offset);
+                rs = getNumeroRegstrador(base, reg);
+                rt = getNumeroRegstrador(partes[1], reg);
+
+            } else if(op.equals("beq") || op.equals("bne")){
+                rs = getNumeroRegstrador(partes[1], reg);
+                rt = getNumeroRegstrador(partes[2], reg);
+
                 int linhaLabel = labels.get(partes[3]);
                 imediato = linhaLabel - (linhaAtual + 1);
-            }else{
+
+            } else {
+                rs = getNumeroRegstrador(partes[2], reg);
+                rt = getNumeroRegstrador(partes[1], reg);
                 imediato = Integer.parseInt(partes[3]);
             }
 
@@ -272,10 +290,6 @@ public class Montador {
         nomeSaida = tipo.equals("-b") ? base + ".bin" : base + ".hex";
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(nomeSaida))){
-            if(!tipo.equals("-b") && !tipo.equals("-h")){
-                System.out.println("Pârametro inválidp. Use -b ou -h");
-                return;
-            }
 
             if(tipo.equals("-h")){
                 bw.write("v2.0 raw");
@@ -313,11 +327,51 @@ public class Montador {
             contagem.put(op, contagem.getOrDefault(op, 0) + 1);
         }
 
-        for (String instrucao: contagem.keySet()){
-            System.out.println(instrucao + ": " + contagem.get(instrucao));
+        return contagem;
+    }
+
+    public static Map<String, Integer> lerCSV(){
+        String caminho = "C:\\Dev\\UFERSA\\3 Semestre\\Arq. e Org. de Comp\\ciclos.csv";
+        Map<String, Integer> ciclos = new HashMap<>();
+
+        try(BufferedReader br = new BufferedReader(new FileReader(caminho))){
+            String linha;
+
+            br.readLine();
+
+            while ((linha = br.readLine()) != null){
+                String[] partes = linha.split(",");
+
+                String instrucao = partes[0].trim();
+                int ciclo = Integer.parseInt(partes[1].trim());
+
+                ciclos.put(instrucao, ciclo);
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
         }
 
-        return contagem;
+        return ciclos;
+    }
+
+    public static double calcularCPI(Map<String, Integer> contagem,
+                                     Map<String, Integer> ciclos){
+        int total = 0;
+        int soma = 0;
+
+        for(String instrucao: contagem.keySet()){
+            int qi = contagem.get(instrucao);
+            int ci = ciclos.getOrDefault(instrucao, 1);
+
+            soma += qi * ci;
+            total += qi;
+        }
+
+        if (total == 0) return 0;
+
+        double cpi = (double) soma / total;
+        System.out.println("\nCPI médio: " + cpi);
+        return cpi;
     }
 
 }
