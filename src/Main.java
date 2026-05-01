@@ -31,7 +31,7 @@ public class Main {
 
         Map<String, Integer> labels = Montador.identificarLabels(linhas);
         Map<String, Integer> reg = Montador.criarMapaRegistradores();
-        Map<String, Integer> opcode = Montador.cirarMapaOpcode();
+        Map<String, Integer> opcode = Montador.criarMapaOpcode();
         Map<String, Integer> funct = Montador.criarMapaFunct();
 
         List<String> binarios = new ArrayList<>();

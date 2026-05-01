@@ -5,6 +5,8 @@ import java.util.*;
 
 public class Montador {
 
+    static final int ENDERECO_BASE = 0x00400000;
+
     static Set<String> tipoR = new HashSet<>(Arrays.asList(
             "sll", "srl", "jr", "mfhi", "mflo", "mult", "multu", "div", "divu",
             "add", "addu", "sub", "subu", "and", "or", "slt", "sltu", "mul"
@@ -142,7 +144,7 @@ public class Montador {
         return "Desconhecido";
     }
 
-    public static Map<String, Integer> cirarMapaOpcode(){
+    public static Map<String, Integer> criarMapaOpcode(){
         Map<String, Integer> op = new HashMap<>();
 
         op.put("beq", 4);
@@ -190,11 +192,10 @@ public class Montador {
     }
 
     public static String paraBinario(int valor, int bits){
-        String bin = Integer.toBinaryString(valor);
+        int mascara = (1 << bits) - 1;
+        valor = valor & mascara;
 
-        if(bin.length() > bits){
-            bin = bin.substring(bin.length() - bits);
-        }
+        String bin = Integer.toBinaryString(valor);
 
         while (bin.length() < bits){
             bin = "0" + bin;
@@ -223,12 +224,48 @@ public class Montador {
         }
 
         if(tipo.equals("R")){
-            int rd = getNumeroRegstrador(partes[1], reg);
-            int rs =  getNumeroRegstrador(partes[2], reg);
-            int rt = getNumeroRegstrador(partes[3], reg);
 
-            int shamt = 0;
-            int funct = functMap.get(op);
+            int rs = 0, rt = 0, rd = 0, shamt = 0;
+            Integer funct = functMap.get(op);
+
+            switch (op){
+
+                case "sll":
+                case "srl":
+                    rd = getNumeroRegstrador(partes[1], reg);
+                    rt = getNumeroRegstrador(partes[2], reg);
+                    shamt = Integer.parseInt(partes[3]);
+                    break;
+
+                case "jr":
+                    rs = getNumeroRegstrador(partes[1], reg);
+                    break;
+
+                case "mfhi":
+                case "mflo":
+                    rd = getNumeroRegstrador(partes[1], reg);
+                    break;
+
+                case "mult":
+                case "multu":
+                case "div":
+                case "divu":
+                    rs = getNumeroRegstrador(partes[1], reg);
+                    rt = getNumeroRegstrador(partes[2], reg);
+                    break;
+
+                case "mul":
+                    rd = getNumeroRegstrador(partes[1], reg);
+                    rs = getNumeroRegstrador(partes[2], reg);
+                    rt = getNumeroRegstrador(partes[3], reg);
+                    break;
+
+                default:
+                    rd = getNumeroRegstrador(partes[1], reg);
+                    rs = getNumeroRegstrador(partes[2], reg);
+                    rt = getNumeroRegstrador(partes[3], reg);
+                    break;
+            }
 
             return paraBinario(opcode, 6) +
                     paraBinario(rs, 5) +
@@ -275,10 +312,13 @@ public class Montador {
         }
 
         if(tipo.equals("J")){
-            int endereco = labels.get(partes[1]);
+            int linhaLabel = labels.get(partes[1]);
+
+            int endereco = ENDERECO_BASE + (linhaLabel * 4);
+            int enderecoDiv4 = endereco >> 2;
 
             return paraBinario(opcode, 6) +
-                    paraBinario(endereco, 26);
+                    paraBinario(enderecoDiv4, 26);
         }
 
         return "";
