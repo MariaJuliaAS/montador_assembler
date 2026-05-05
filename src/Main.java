@@ -6,23 +6,32 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Scanner sc = new Scanner(System.in);
+        String caminho;
+        String tipo;
 
-        System.out.print("Digite: nomeDoArquivo.asm -b ou -h → ");
-        String entrada = sc.nextLine();
+        if(args.length >= 2){
+            caminho = args[0];
+            tipo = args[1];
+        } else {
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Digite: nomeDoArquivo.asm -b ou -h → ");
+            String entrada = sc.nextLine();
 
-        String[] partes = entrada.split("\\s+");
+            String[] partes = entrada.split("\\s+");
 
-        if (partes.length < 2) {
-            System.out.println("Entrada inválida!");
-            return;
+            if (partes.length < 2) {
+                System.out.println("Entrada inválida!");
+                return;
+            }
+
+            caminho = partes[0];
+            tipo = partes[1];
+
+            sc.close();
         }
 
-        String caminho = partes[0];
-        String tipo = partes[1];
-
         if (!tipo.equals("-b") && !tipo.equals("-h")) {
-            System.out.println("Parâmetro inválido!");
+            System.out.println("Parâmetro inválido! Use -b ou -h");
             return;
         }
 
@@ -60,7 +69,5 @@ public class Main {
 
         Map<String, Integer> ciclos = Montador.lerCSV();
         Montador.calcularCPI(contagem, ciclos);
-
-        sc.close();
     }
 }

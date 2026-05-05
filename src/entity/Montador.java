@@ -299,6 +299,10 @@ public class Montador {
                 int linhaLabel = labels.get(partes[3]);
                 imediato = linhaLabel - (linhaAtual + 1);
 
+            }else if(op.equals("lui")){
+                rt = getNumeroRegstrador(partes[1], reg);
+                imediato = Integer.parseInt(partes[2]);
+                rs = 0;
             } else {
                 rs = getNumeroRegstrador(partes[2], reg);
                 rt = getNumeroRegstrador(partes[1], reg);
